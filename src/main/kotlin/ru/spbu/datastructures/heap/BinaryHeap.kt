@@ -25,7 +25,7 @@ class BinaryHeap<K : Comparable<K>, V>(
         require(keys.size == values.size) { "Keys and values collections must have equal size" }
         this.keys.addAll(keys)
         this.values.addAll(values)
-        (size / 2 downTo 0).forEach { index -> siftDown(index) }
+        heapify()
     }
 
     override fun peek(): V? {
@@ -74,11 +74,20 @@ class BinaryHeap<K : Comparable<K>, V>(
     }
 
     override fun merge(heap: Heap<K, V>): Heap<K, V> {
-        TODO("not implemented")
+        val keys = ArrayList(this.keys)
+        val values = ArrayList(this.values)
+
+        keys.addAll(heap.keys)
+        values.addAll(heap.values)
+
+        return BinaryHeap(keys, values, this.comparator)
     }
 
     override fun meld(heap: Heap<K, V>): Heap<K, V> {
-        TODO("not implemented")
+        keys.addAll(heap.keys)
+        values.addAll(heap.values)
+        heapify()
+        return this
     }
 
     override fun prioritize(oldKey: K, newKey: K): K? {
@@ -116,6 +125,8 @@ class BinaryHeap<K : Comparable<K>, V>(
             index = chosen
         }
     }
+
+    private fun heapify() = (size / 2 downTo 0).forEach { index -> siftDown(index) }
 
     private fun swap(i: Int, j: Int) {
         keys[i] = keys[j].also { keys[j] = keys[i] }
