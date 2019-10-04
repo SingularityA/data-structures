@@ -16,6 +16,18 @@ class BinaryHeap<K : Comparable<K>, V>(
     private val lastIndex: Int
         get() = keys.lastIndex
 
+    constructor(
+        keys: Collection<K>,
+        values: Collection<V>,
+        comparator: Comparator<K> = naturalOrder()
+    ) : this(comparator) {
+
+        require(keys.size == values.size) { "Keys and values collections must have equal size" }
+        this.keys.addAll(keys)
+        this.values.addAll(values)
+        (size / 2 downTo 0).forEach { index -> siftDown(index) }
+    }
+
     override fun peek(): V? {
         return if (isEmpty())
             null
