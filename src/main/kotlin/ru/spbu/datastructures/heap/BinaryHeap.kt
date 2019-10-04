@@ -62,7 +62,13 @@ class BinaryHeap<K: Comparable<K>, V>(
     }
 
     override fun merge(heap: Heap<K, V>): Heap<K, V> {
-        TODO("not implemented")
+        var mergeHeap: Heap<K, V> = heap
+        for (i in 0..size-1) {
+            mergeHeap.push(keys[i],values[i])
+        }
+        heap.clear()
+        this.clear()
+        return mergeHeap
     }
 
     override fun meld(heap: Heap<K, V>): Heap<K, V> {
