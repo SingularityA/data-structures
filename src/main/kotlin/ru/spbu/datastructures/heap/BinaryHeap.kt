@@ -2,19 +2,19 @@ package ru.spbu.datastructures.heap
 
 import kotlin.collections.ArrayList
 
-class BinaryHeap<K: Comparable<K>, V>(
-    val comparator: Comparator<K> = naturalOrder()
+class BinaryHeap<K : Comparable<K>, V>(
+    private val comparator: Comparator<K> = naturalOrder()
 ) : Heap<K, V> {
 
-    private val keys: MutableList<K> = ArrayList()
+    override val keys: MutableList<K> = ArrayList()
 
-    private val values: MutableList<V> = ArrayList()
-
-    private val lastIndex: Int
-        get() = keys.lastIndex
+    override val values: MutableList<V> = ArrayList()
 
     override val size: Int
         get() = keys.size
+
+    private val lastIndex: Int
+        get() = keys.lastIndex
 
     override fun peek(): V? {
         return if (isEmpty())
@@ -81,15 +81,43 @@ class BinaryHeap<K: Comparable<K>, V>(
     }
 
     private fun siftUp(i: Int) {
-        TODO("not implemented")
+        var index = i
+        while (comparator.compare(keys[index], keys[parent(index)]) < 0) {
+            swap(index, parent(index))
+            index = parent(index)
+        }
     }
 
     private fun siftDown(i: Int) {
-        TODO("not implemented")
+        var index = i
+        var chosen: Int
+        while (left(index) < size) {
+            chosen = left(index)
+
+            if (right(index) < size && comparator.compare(keys[right(index)], keys[left(index)]) < 0)
+                chosen = right(index)
+
+            if (comparator.compare(keys[index], keys[chosen]) <= 0)
+                break
+
+            swap(index, chosen)
+            index = chosen
+        }
     }
 
     private fun swap(i: Int, j: Int) {
         keys[i] = keys[j].also { keys[j] = keys[i] }
         values[i] = values[j].also { values[j] = values[i] }
+    }
+
+    private fun parent(i: Int) = (i - 1) / 2
+
+    private fun left(i: Int) = 2 * i + 1
+
+    private fun right(i: Int) = 2 * i + 2
+
+    override fun toString(): String {
+        if (isEmpty()) return "[]"
+        return "[ ${(0..lastIndex).joinToString { index -> "${keys[index]} = ${values[index]}" }} ]"
     }
 }
