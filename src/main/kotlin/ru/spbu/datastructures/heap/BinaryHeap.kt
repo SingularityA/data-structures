@@ -2,19 +2,31 @@ package ru.spbu.datastructures.heap
 
 import kotlin.collections.ArrayList
 
-class BinaryHeap<K: Comparable<K>, V>(
-    val comparator: Comparator<K> = naturalOrder()
+class BinaryHeap<K : Comparable<K>, V>(
+    private val comparator: Comparator<K> = naturalOrder()
 ) : Heap<K, V> {
 
-    private val keys: MutableList<K> = ArrayList()
+    override val keys: MutableList<K> = ArrayList()
 
-    private val values: MutableList<V> = ArrayList()
+    override val values: MutableList<V> = ArrayList()
+
+    override val size: Int
+        get() = keys.size
 
     private val lastIndex: Int
         get() = keys.lastIndex
 
-    override val size: Int
-        get() = keys.size
+    constructor(
+        keys: Collection<K>,
+        values: Collection<V>,
+        comparator: Comparator<K> = naturalOrder()
+    ) : this(comparator) {
+
+        require(keys.size == values.size) { "Keys and values collections must have equal size" }
+        this.keys.addAll(keys)
+        this.values.addAll(values)
+        heapify()
+    }
 
     override fun peek(): V? {
         return if (isEmpty())
@@ -62,17 +74,20 @@ class BinaryHeap<K: Comparable<K>, V>(
     }
 
     override fun merge(heap: Heap<K, V>): Heap<K, V> {
-        var mergeHeap: Heap<K, V> = heap
-        for (i in 0..size-1) {
-            mergeHeap.push(keys[i],values[i])
-        }
-        heap.clear()
-        this.clear()
-        return mergeHeap
+        val keys = ArrayList(this.keys)
+        val values = ArrayList(this.values)
+
+        keys.addAll(heap.keys)
+        values.addAll(heap.values)
+
+        return BinaryHeap(keys, values, this.comparator)
     }
 
     override fun meld(heap: Heap<K, V>): Heap<K, V> {
-        TODO("not implemented")
+        keys.addAll(heap.keys)
+        values.addAll(heap.values)
+        heapify()
+        return this
     }
 
     override fun prioritize(oldKey: K, newKey: K): K? {
@@ -87,15 +102,45 @@ class BinaryHeap<K: Comparable<K>, V>(
     }
 
     private fun siftUp(i: Int) {
-        TODO("not implemented")
+        var index = i
+        while (comparator.compare(keys[index], keys[parent(index)]) < 0) {
+            swap(index, parent(index))
+            index = parent(index)
+        }
     }
 
     private fun siftDown(i: Int) {
-        TODO("not implemented")
+        var index = i
+        var chosen: Int
+        while (left(index) < size) {
+            chosen = left(index)
+
+            if (right(index) < size && comparator.compare(keys[right(index)], keys[left(index)]) < 0)
+                chosen = right(index)
+
+            if (comparator.compare(keys[index], keys[chosen]) <= 0)
+                break
+
+            swap(index, chosen)
+            index = chosen
+        }
     }
+
+    private fun heapify() = (size / 2 downTo 0).forEach { index -> siftDown(index) }
 
     private fun swap(i: Int, j: Int) {
         keys[i] = keys[j].also { keys[j] = keys[i] }
         values[i] = values[j].also { values[j] = values[i] }
+    }
+
+    private fun parent(i: Int) = (i - 1) / 2
+
+    private fun left(i: Int) = 2 * i + 1
+
+    private fun right(i: Int) = 2 * i + 2
+
+    override fun toString(): String {
+        if (isEmpty()) return "[]"
+        return "[ ${(0..lastIndex).joinToString { index -> "${keys[index]} = ${values[index]}" }} ]"
     }
 }

@@ -11,6 +11,16 @@ import ru.spbu.datastructures.BasicCollection
 interface Heap<K, V>: BasicCollection<K> {
 
     /**
+     * Returns a read-only [List] of all keys in this heap.
+     */
+    val keys: List<K>
+
+    /**
+     * Returns a read-only [List] of all values in this heap.
+     */
+    val values: List<V>
+
+    /**
      * Returns the value of the key on top of the heap,
      * does not remove the key and its corresponding value from the heap.
      *
