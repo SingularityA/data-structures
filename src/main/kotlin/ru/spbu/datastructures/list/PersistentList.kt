@@ -16,6 +16,7 @@ class PersistentList<V>(private val p: Int = 2) {
         node1.listMod.add(Triple(0, Node.Field.RIGHT, null))
         listModTail.add(Pair(0, node1))
     }
+
     var version: Int = 0
 
     fun size(version: Int = this.version): Int {
@@ -48,7 +49,6 @@ class PersistentList<V>(private val p: Int = 2) {
 
     val printAllVersions: Unit
         get() {
-            //var currentVersion = this.version
             for (v in 0..this.version) {
                 print("version ${v} ")
                 this.print(v)
@@ -183,7 +183,7 @@ class PersistentList<V>(private val p: Int = 2) {
     private fun copyRightNodeFull(nextNode: Node<V>): Node<V> {
         var newNextNode: Node<V>? = nextNode
         if (newNextNode!!.isFull(2*this.p)) {
-            val (isTailFull, mostRightNotFull) = newNextNode!!.findMostRightNotFull(this.version, 2 * this.p)
+            val (isTailFull, mostRightNotFull) = newNextNode.findMostRightNotFull(this.version, 2 * this.p)
             if (isTailFull) {
                 this.listModTail.add(Pair(this.version + 1, mostRightNotFull))
                 mostRightNotFull.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, null))
@@ -298,8 +298,8 @@ class PersistentList<V>(private val p: Int = 2) {
             return ++this.version
         }
 
-        var newPrevNode = this.copyLeftNodeFull(prevNode)
-        var newNextNode = this.copyRightNodeFull(nextNode)
+        val newPrevNode = this.copyLeftNodeFull(prevNode)
+        val newNextNode = this.copyRightNodeFull(nextNode)
         newNextNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, newPrevNode))
         newPrevNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, newNextNode))
         return ++this.version
