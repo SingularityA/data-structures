@@ -1,6 +1,21 @@
 package ru.spbu.datastructures.list
 
-class PersistentList<V>(val p: Int = 2) {
+class PersistentList<V>(private val p: Int = 2) {
+
+    constructor(listv0: List<V>, p: Int = 2): this(p) {
+        var node1: Node<V> = Node(listv0[0])
+        node1.listMod.add(Triple(0, Node.Field.LEFT, null))
+        listModHead.add(Pair(0, node1))
+        var node2: Node<V>
+        for (i in 1..listv0.size - 1) {
+            node2 = Node(listv0[i])
+            node1.listMod.add(Triple(0, Node.Field.RIGHT, node2))
+            node2.listMod.add(Triple(0, Node.Field.LEFT, node1))
+            node1 = node2
+        }
+        node1.listMod.add(Triple(0, Node.Field.RIGHT, null))
+        listModTail.add(Pair(0, node1))
+    }
     var version: Int = 0
 
     fun size(version: Int = this.version): Int {
@@ -31,15 +46,24 @@ class PersistentList<V>(val p: Int = 2) {
         }
     }
 
+    val printAllVersions: Unit
+        get() {
+            //var currentVersion = this.version
+            for (v in 0..this.version) {
+                print("version ${v} ")
+                this.print(v)
+            }
+        }
+
     fun isEmpty(version: Int = this.version): Boolean = this.head(version) == null
 
-    private var listModHead: MutableList<Pair<Int, Node<V>>> = mutableListOf()
-    private var listModTail: MutableList<Pair<Int, Node<V>>> = mutableListOf()
+    private var listModHead: MutableList<Pair<Int, Node<V>?>> = mutableListOf()
+    private var listModTail: MutableList<Pair<Int, Node<V>?>> = mutableListOf()
 
     private fun head(version: Int = this.version): Node<V>? = findNode(version, this.listModHead)
     private fun tail(version: Int = this.version): Node<V>? = findNode(version, this.listModTail)
 
-    private fun findNode(version: Int, listMod: MutableList<Pair<Int, Node<V>>>): Node<V>? {
+    private fun findNode(version: Int, listMod: MutableList<Pair<Int, Node<V>?>>): Node<V>? {
         var findNode: Node<V>? = null
         for (mod in listMod)
             if (mod.first <= version)
@@ -54,9 +78,7 @@ class PersistentList<V>(val p: Int = 2) {
         get() = println(this.listModTail)
 
     private class Node<V> (val value: V?) {
-        var listMod: MutableList<Triple<Int,Field,Node<V>>> = mutableListOf()
-        var left: Node<V>? = null
-        var right: Node<V>? = null
+        var listMod: MutableList<Triple<Int,Field,Node<V>?>> = mutableListOf()
 
         enum class Field {
             RIGHT, LEFT
@@ -64,8 +86,8 @@ class PersistentList<V>(val p: Int = 2) {
 
         fun next(version: Int): Node<V>? {
             if (this.listMod.isEmpty())
-                return this.right
-            var nextNode = this.right
+                return null
+            var nextNode: Node<V>? = null
             for (mod in this.listMod) {
                 if (mod.first <= version && mod.second == Field.RIGHT)
                     nextNode = mod.third
@@ -75,8 +97,8 @@ class PersistentList<V>(val p: Int = 2) {
 
         fun prev(version: Int): Node<V>? {
             if (this.listMod.isEmpty())
-                return this.left
-            var prevNode = this.left
+                return null
+            var prevNode: Node<V>? = null
             for (mod in this.listMod) {
                 if (mod.first <= version && mod.second == Field.LEFT)
                     prevNode = mod.third
@@ -84,7 +106,7 @@ class PersistentList<V>(val p: Int = 2) {
             return prevNode
         }
 
-        fun isFull (p: Int): Boolean = this.listMod.size >= 2*p
+        fun isFull (maxMod: Int): Boolean = this.listMod.size >= maxMod
 
         fun findMostLeftNotFull(currentVersion: Int, maxMod: Int): Pair<Boolean, Node<V>> {
             var isHeadFull = false
@@ -102,7 +124,7 @@ class PersistentList<V>(val p: Int = 2) {
                         break
                     }
                     else {
-                        var tmp = copyNode
+                        val tmp = copyNode
                         copyNode = Node(currentNode.value)
                         tmp.listMod.add(Triple(currentVersion + 1, Field.LEFT, copyNode))
                         copyNode.listMod.add(Triple(currentVersion + 1, Field.RIGHT, tmp))
@@ -127,7 +149,7 @@ class PersistentList<V>(val p: Int = 2) {
                         copyNode.listMod.add(Triple(currentVersion + 1, Field.RIGHT, currentNode))
                         break
                     } else {
-                        var tmp = copyNode
+                        val tmp = copyNode
                         copyNode = Node(currentNode.value)
                         tmp.listMod.add(Triple(currentVersion + 1, Field.RIGHT, copyNode))
                         copyNode.listMod.add(Triple(currentVersion + 1, Field.LEFT, tmp))
@@ -158,33 +180,56 @@ class PersistentList<V>(val p: Int = 2) {
         return findNode
     }
 
-    fun pushHead(newValue: V): Int {
-        val newNode = Node(newValue)
-        if (this.isEmpty(this.version))
-            this.listModTail.add(Pair(this.version + 1, newNode))
-        else {
-            val nextNode = this.head(this.version)!!.next(this.version)
-            if (nextNode == null)
-                this.listModTail.add(Pair(this.version + 1, newNode))
-            else {
-                var newNextNode: Node<V>
-                if (newNode.isFull(p)) {
-                    val (isTailFull, mostRightNotFull) = nextNode.findMostRightNotFull(this.version, 2 * p)
-                    if (isTailFull)
-                        this.listModTail.add(Pair(this.version + 1, mostRightNotFull))
-                    newNextNode = mostRightNotFull
-                    while (true) {
-                        if (newNextNode.prev(this.version + 1) == null)
-                            break
-                        newNextNode = newNextNode.prev(this.version + 1)!!
-                    }
-                } else
-                    newNextNode = nextNode
-                newNextNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, newNode))
-                newNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, newNextNode))
+    private fun copyRightNodeFull(nextNode: Node<V>): Node<V> {
+        var newNextNode: Node<V>? = nextNode
+        if (newNextNode!!.isFull(2*this.p)) {
+            val (isTailFull, mostRightNotFull) = newNextNode!!.findMostRightNotFull(this.version, 2 * this.p)
+            if (isTailFull) {
+                this.listModTail.add(Pair(this.version + 1, mostRightNotFull))
+                mostRightNotFull.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, null))
+            }
+            newNextNode = mostRightNotFull
+            while (true) {
+                if (newNextNode!!.prev(this.version + 1) == null)
+                    break
+                newNextNode = newNextNode.prev(this.version + 1)
             }
         }
+        return newNextNode!!
+    }
+
+    private fun copyLeftNodeFull(prevNode: Node<V>): Node<V> {
+        var newPrevNode: Node<V>? = prevNode
+        if (newPrevNode!!.isFull(2*this.p)) {
+            val (isHeadFull, mostLeftNotFull) = newPrevNode.findMostLeftNotFull(this.version, 2*this.p)
+            if (isHeadFull) {
+                this.listModHead.add(Pair(this.version + 1, mostLeftNotFull))
+                mostLeftNotFull.listMod.add(Triple(this.version + 1, Node.Field.LEFT, null))
+            }
+            newPrevNode = mostLeftNotFull
+            while (true) {
+                if (newPrevNode!!.next(this.version + 1) == null)
+                    break
+                newPrevNode = newPrevNode.next(this.version + 1)
+            }
+        }
+        return newPrevNode!!
+    }
+
+    fun pushHead(newValue: V): Int {
+        val newNode = Node(newValue)
         this.listModHead.add(Pair(this.version + 1, newNode))
+        newNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, null))
+
+        if (this.isEmpty(this.version)) {
+            this.listModTail.add(Pair(this.version + 1, newNode))
+            newNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, null))
+        }
+        else {
+            val nextNode = this.copyRightNodeFull(this.head(this.version)!!)
+            nextNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, newNode))
+            newNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, nextNode))
+        }
         return ++this.version
     }
 
@@ -194,46 +239,69 @@ class PersistentList<V>(val p: Int = 2) {
             println("В версии ${this.version} элемент ${currentValue} не найден")
             return this.version
         }
-        var newCurrentNode: Node<V>
-        if (currentNode.isFull(p)) {
-            val (isHeadFull, mostLeftNotFull) = currentNode.findMostLeftNotFull(this.version, 2 * p)
-            if (isHeadFull)
-                this.listModHead.add(Pair(this.version + 1, mostLeftNotFull))
-             newCurrentNode = mostLeftNotFull
-            while (true) {
-                if (newCurrentNode.next(this.version + 1) == null)
-                    break
-                newCurrentNode = newCurrentNode.next(this.version + 1)!!
-            }
-        }
-        else
-            newCurrentNode = currentNode
 
+        val newCurrentNode = this.copyLeftNodeFull(currentNode)
         val newNode = Node(newValue)
         newCurrentNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, newNode))
         newNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, newCurrentNode))
 
         val nextNode = currentNode.next(this.version)
-        if (nextNode == null)
+        if (nextNode == null) {
             this.listModTail.add(Pair(this.version + 1, newNode))
+            newNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, null))
+        }
         else {
-            var newNextNode: Node<V>
-            if (newNode.isFull(p)) {
-                val (isTailFull, mostRightNotFull) = nextNode.findMostRightNotFull(this.version, 2*p)
-                if (isTailFull)
-                    this.listModTail.add(Pair(this.version + 1, mostRightNotFull))
-                newNextNode = mostRightNotFull
-                while (true) {
-                    if (newNextNode.prev(this.version + 1) == null)
-                        break
-                    newNextNode = newNextNode.prev(this.version + 1)!!
-                }
-            }
-            else
-                newNextNode = nextNode
+            val newNextNode: Node<V> = this.copyRightNodeFull(nextNode)
             newNextNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, newNode))
             newNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, newNextNode))
         }
+        return ++this.version
+    }
+
+    private val popHead: Unit
+        get() {
+            val nextNode = this.copyRightNodeFull(this.head(this.version)!!.next(this.version)!!)
+            this.listModHead.add(Pair(this.version + 1, nextNode))
+            nextNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, null))
+        }
+
+    private val popTail: Unit
+        get() {
+            val prevNode = this.copyLeftNodeFull(this.tail(this.version)!!.prev(this.version)!!)
+            this.listModTail.add(Pair(this.version + 1, prevNode))
+            prevNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, null))
+        }
+
+    fun pop(value: V): Int {
+        val currentNode = this.findValue(this.version, value)
+        if (currentNode == null) {
+            println("Узел со значением ${value} в версии ${this.version} не найден")
+            return this.version
+        }
+
+        if (this.size() == 1) {
+            this.listModHead.add(Pair(this.version + 1, null))
+            this.listModTail.add(Pair(this.version + 1, null))
+            return ++this.version
+        }
+
+        val prevNode = currentNode.prev(this.version)
+        val nextNode = currentNode.next(this.version)
+
+        if (prevNode == null) {
+            this.popHead
+            return ++this.version
+        }
+
+        if (nextNode == null) {
+            this.popTail
+            return ++this.version
+        }
+
+        var newPrevNode = this.copyLeftNodeFull(prevNode)
+        var newNextNode = this.copyRightNodeFull(nextNode)
+        newNextNode.listMod.add(Triple(this.version + 1, Node.Field.LEFT, newPrevNode))
+        newPrevNode.listMod.add(Triple(this.version + 1, Node.Field.RIGHT, newNextNode))
         return ++this.version
     }
 }
