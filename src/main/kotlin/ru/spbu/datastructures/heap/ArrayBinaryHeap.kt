@@ -2,7 +2,7 @@ package ru.spbu.datastructures.heap
 
 import kotlin.collections.ArrayList
 
-class BinaryHeap<K : Comparable<K>, V>(
+class ArrayBinaryHeap<K : Comparable<K>, V>(
     private val comparator: Comparator<K> = naturalOrder()
 ) : Heap<K, V> {
 
@@ -80,7 +80,7 @@ class BinaryHeap<K : Comparable<K>, V>(
         keys.addAll(heap.keys)
         values.addAll(heap.values)
 
-        return BinaryHeap(keys, values, this.comparator)
+        return ArrayBinaryHeap(keys, values, this.comparator)
     }
 
     override fun meld(heap: Heap<K, V>): Heap<K, V> {
