@@ -3,6 +3,7 @@ package ru.spbu.datastructures.heap
 import ru.spbu.datastructures.BasicCollection
 
 /**
+ * @author SingularityA
  * A modifiable collection that holds pairs of objects (keys and values)
  * and supports efficiently retrieving the top value of collection.
  * @param K the type of heap keys.

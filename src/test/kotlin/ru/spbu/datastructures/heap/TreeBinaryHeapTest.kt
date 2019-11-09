@@ -3,6 +3,9 @@ package ru.spbu.datastructures.heap
 import org.junit.Assert
 import org.junit.Test
 
+/**
+ * @author SingularityA
+ */
 class TreeBinaryHeapTest {
 
     @Test

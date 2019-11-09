@@ -2,6 +2,9 @@ package ru.spbu.datastructures.heap
 
 import kotlin.collections.ArrayList
 
+/**
+ * @author SingularityA
+ */
 class ArrayBinaryHeap<K : Comparable<K>, V>(
     private val comparator: Comparator<K> = naturalOrder()
 ) : Heap<K, V> {

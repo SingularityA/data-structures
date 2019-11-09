@@ -2,6 +2,9 @@ package ru.spbu.datastructures.heap
 
 import kotlin.math.log2
 
+/**
+ * @author SingularityA
+ */
 class TreeBinaryHeap<K : Comparable<K>, V>(
     private val comparator: Comparator<K> = naturalOrder()
 ) : Heap<K, V> {
