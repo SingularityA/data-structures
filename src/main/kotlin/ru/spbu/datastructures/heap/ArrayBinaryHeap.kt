@@ -68,9 +68,15 @@ class ArrayBinaryHeap<K : Comparable<K>, V>(
         if (isEmpty()) return null
 
         val index = keys.indexOf(key)
+        if (index == -1) return null
 
-        // see where to sift - up or down
-        TODO("not implemented")
+        val value = values[index]
+        swap(index, lastIndex)
+        keys.removeAt(keys.lastIndex)
+        values.removeAt(values.lastIndex)
+
+        siftDown(index)
+        return value
     }
 
     override fun merge(heap: Heap<K, V>): Heap<K, V> {
@@ -102,6 +108,7 @@ class ArrayBinaryHeap<K : Comparable<K>, V>(
     }
 
     private fun siftUp(i: Int) {
+        if (size < 2) return
         var index = i
         while (comparator.compare(keys[index], keys[parent(index)]) < 0) {
             swap(index, parent(index))
@@ -110,6 +117,7 @@ class ArrayBinaryHeap<K : Comparable<K>, V>(
     }
 
     private fun siftDown(i: Int) {
+        if (size < 2) return
         var index = i
         var chosen: Int
         while (left(index) < size) {
