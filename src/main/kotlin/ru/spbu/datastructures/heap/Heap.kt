@@ -52,26 +52,11 @@ interface Heap<K, V>: BasicCollection<K> {
     fun replace(key: K, value: V): V?
 
     /**
-     * Removes the pair with the [key].
+     * Removes the pair with the [value] (first appearance).
 
-     * @return the value associated with the [key], or `null` if there is no such key or the heap is empty.
+     * @return the [value] or `null` if there is no pair with such [value].
      */
-    fun remove(key: K): V?
-
-    /**
-     * Joins two heaps to form a valid new heap containing all the elements of both, preserving the original heaps.
-     *
-     * @return new heap containing elements of this heap and [heap].
-     */
-    fun merge(heap: Heap<K, V>): Heap<K, V>
-
-    /**
-     * Joins two heaps to form a valid new heap containing all the elements of both, destroying the original heaps.
-     * (Mutates this and [heap]).
-     *
-     * @return this
-     */
-    fun meld(heap: Heap<K, V>): Heap<K, V>
+    fun remove(value: V): V?
 
     /**
      * Changes the key of the element from [oldKey] to [newKey].
