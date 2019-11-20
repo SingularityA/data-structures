@@ -71,15 +71,7 @@ class TreeBinaryHeap<K : Comparable<K>, V>(
         }
     }
 
-    override fun remove(key: K): V? {
-        TODO("not implemented")
-    }
-
-    override fun merge(heap: Heap<K, V>): Heap<K, V> {
-        TODO("not implemented")
-    }
-
-    override fun meld(heap: Heap<K, V>): Heap<K, V> {
+    override fun remove(value: V): V? {
         TODO("not implemented")
     }
 
