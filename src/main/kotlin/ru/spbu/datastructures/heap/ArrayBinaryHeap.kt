@@ -4,21 +4,33 @@ import kotlin.collections.ArrayList
 
 /**
  * @author SingularityA
- * Array-based heap realisation
+ * Array-based heap implementation
  */
-abstract class ArrayBinaryHeap<K : Comparable<K>, V>(
+class ArrayBinaryHeap<K : Comparable<K>, V>(
     protected val comparator: Comparator<K> = naturalOrder()
 ) : MergeableHeap<K, V> {
 
-    final override val keys: MutableList<K> = ArrayList()
+    override val keys: MutableList<K> = ArrayList()
 
-    final override val values: MutableList<V> = ArrayList()
+    override val values: MutableList<V> = ArrayList()
 
-    final override val size: Int
+    override val size: Int
         get() = keys.size
 
     private val lastIndex: Int
         get() = keys.lastIndex
+
+    constructor(
+        keys: Collection<K>,
+        values: Collection<V>,
+        comparator: Comparator<K> = naturalOrder()
+    ) : this(comparator) {
+
+        require(keys.size == values.size) { "Keys and values collections must have equal size" }
+        this.keys.addAll(keys)
+        this.values.addAll(values)
+        heapify()
+    }
 
     override fun peek(): V? {
         return if (isEmpty())
@@ -72,6 +84,27 @@ abstract class ArrayBinaryHeap<K : Comparable<K>, V>(
         return value
     }
 
+    override fun prioritize(oldKey: K, newKey: K): K? {
+        require(comparator.compare(oldKey, newKey) >= 0) { "New key must be higher than old key" }
+        val index = keys.indexOf(oldKey)
+        if (index == -1) return null
+
+        keys[index] = newKey
+        siftUp(index)
+
+        return newKey
+    }
+
+    override fun merge(heap: Heap<K, V>): Heap<K, V> {
+        val keys = ArrayList(this.keys)
+        val values = ArrayList(this.values)
+
+        keys.addAll(heap.keys)
+        values.addAll(heap.values)
+
+        return ArrayBinaryHeap(keys, values, this.comparator)
+    }
+
     override fun meld(heap: Heap<K, V>): Heap<K, V> {
         keys.addAll(heap.keys)
         values.addAll(heap.values)
@@ -86,7 +119,7 @@ abstract class ArrayBinaryHeap<K : Comparable<K>, V>(
         values.clear()
     }
 
-    protected fun siftUp(i: Int) {
+    private fun siftUp(i: Int) {
         if (size < 2) return
         var index = i
         while (comparator.compare(keys[index], keys[parent(index)]) < 0) {
@@ -95,7 +128,7 @@ abstract class ArrayBinaryHeap<K : Comparable<K>, V>(
         }
     }
 
-    protected fun siftDown(i: Int) {
+    private fun siftDown(i: Int) {
         if (size < 2) return
         var index = i
         var chosen: Int
@@ -113,7 +146,7 @@ abstract class ArrayBinaryHeap<K : Comparable<K>, V>(
         }
     }
 
-    protected fun heapify() = (size / 2 downTo 0).forEach { index -> siftDown(index) }
+    private fun heapify() = (size / 2 downTo 0).forEach { index -> siftDown(index) }
 
     private fun swap(i: Int, j: Int) {
         keys[i] = keys[j].also { keys[j] = keys[i] }

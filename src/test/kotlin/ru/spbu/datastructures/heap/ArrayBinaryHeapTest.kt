@@ -11,7 +11,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPeek() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(3, 2, 1, 4, 5),
             listOf(33, 22, 11, 44, 55)
         )
@@ -20,7 +20,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPeekComparator() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(3, 2, 1, 4, 5),
             listOf(33, 22, 11, 44, 55),
             Comparator.reverseOrder()
@@ -30,14 +30,14 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPeekEmpty() {
-        val emptyHeap = IntArrayBinaryHeap<Int>()
+        val emptyHeap = ArrayBinaryHeap<Int, Int>()
         assertEquals(null, emptyHeap.peek())
         assertEquals(0, emptyHeap.size)
     }
 
     @Test
     fun testPush() {
-        val heap = IntArrayBinaryHeap<Int>()
+        val heap = ArrayBinaryHeap<Int, Int>()
         (10 downTo 1).onEach { heap.push(it, it * 11) }
 
         assertEquals(10, heap.size)
@@ -46,7 +46,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPushComparator() {
-        val heap = IntArrayBinaryHeap<Int>(reverseOrder())
+        val heap = ArrayBinaryHeap<Int, Int>(reverseOrder())
         (10 downTo 1).onEach { heap.push(it, it * 11) }
 
         assertEquals(10, heap.size)
@@ -55,7 +55,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPop() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(3, 2, 1, 4, 5),
             listOf(33, 22, 11, 44, 55)
         )
@@ -69,7 +69,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPopComparator() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(3, 2, 1, 4, 5),
             listOf(33, 22, 11, 44, 55),
             reverseOrder()
@@ -84,7 +84,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPopEmpty() {
-        val emptyHeap = IntArrayBinaryHeap<Int>()
+        val emptyHeap = ArrayBinaryHeap<Int, Int>()
 
         val popped = emptyHeap.pop()
 
@@ -94,7 +94,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testReplace() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(1, 2, 3, 4, 5),
             listOf(11, 22, 33, 44, 55)
         )
@@ -109,7 +109,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testReplaceComparator() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(6, 5, 4, 3, 2),
             listOf(66, 55, 44, 33, 22),
             reverseOrder()
@@ -125,7 +125,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testReplaceEmpty() {
-        val emptyHeap = IntArrayBinaryHeap<Int>()
+        val emptyHeap = ArrayBinaryHeap<Int, Int>()
 
         val replaced = emptyHeap.replace(1, 11)
         println(emptyHeap)
@@ -137,7 +137,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testRemove() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(1, 2, 3, 4, 5, 6, 7),
             listOf(11, 22, 33, 44, 55, 66, 77)
         )
@@ -160,7 +160,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testRemoveComparator() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(5, 4, 3, 2, 1),
             listOf(55, 44, 33, 22, 11),
             reverseOrder()
@@ -184,7 +184,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testRemoveEmpty() {
-        val emptyHeap = IntArrayBinaryHeap<Int>()
+        val emptyHeap = ArrayBinaryHeap<Int, Int>()
         val removed = emptyHeap.remove(11)
 
         assertEquals(null, removed)
@@ -192,7 +192,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPrioritize() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(2, 3, 4, 5, 6, 7),
             listOf(22, 33, 44, 55, 66, 77)
         )
@@ -207,7 +207,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPrioritizeComparator() {
-        val heap = IntArrayBinaryHeap(
+        val heap = ArrayBinaryHeap(
             listOf(5, 4, 3, 2, 1),
             listOf(55, 44, 33, 22, 11),
             reverseOrder()
@@ -222,7 +222,7 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testPrioritizeEmpty() {
-        val emptyHeap = IntArrayBinaryHeap<Int>()
+        val emptyHeap = ArrayBinaryHeap<Int, Int>()
 
         val prioritized = emptyHeap.prioritize(2, 1)
 
@@ -234,8 +234,8 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testMerge() {
-        val heap = IntArrayBinaryHeap(listOf(1, 2, 3), listOf(11, 22, 33))
-        val anotherHeap = IntArrayBinaryHeap(listOf(4, 5, 6, 7, 8), listOf(44, 55, 66, 77, 88))
+        val heap = ArrayBinaryHeap(listOf(1, 2, 3), listOf(11, 22, 33))
+        val anotherHeap = ArrayBinaryHeap(listOf(4, 5, 6, 7, 8), listOf(44, 55, 66, 77, 88))
 
         val mergedHeap = heap.merge(anotherHeap)
 
@@ -249,8 +249,8 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testMergeEmpty() {
-        val heap = IntArrayBinaryHeap<Int>()
-        val anotherHeap = IntArrayBinaryHeap<Int>()
+        val heap = ArrayBinaryHeap<Int, Int>()
+        val anotherHeap = ArrayBinaryHeap<Int, Int>()
 
         val mergedHeap = heap.merge(anotherHeap)
 
@@ -264,8 +264,8 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testMeld() {
-        val heap = IntArrayBinaryHeap(listOf(1, 2, 3), listOf(11, 22, 33))
-        val anotherHeap = IntArrayBinaryHeap(listOf(4, 5, 6, 7, 8), listOf(44, 55, 66, 77, 88))
+        val heap = ArrayBinaryHeap(listOf(1, 2, 3), listOf(11, 22, 33))
+        val anotherHeap = ArrayBinaryHeap(listOf(4, 5, 6, 7, 8), listOf(44, 55, 66, 77, 88))
 
         val meldedHeap = heap.meld(anotherHeap)
 
@@ -279,8 +279,8 @@ class ArrayBinaryHeapTest {
 
     @Test
     fun testMeldEmpty() {
-        val heap = IntArrayBinaryHeap<Int>()
-        val anotherHeap = IntArrayBinaryHeap<Int>()
+        val heap = ArrayBinaryHeap<Int, Int>()
+        val anotherHeap = ArrayBinaryHeap<Int, Int>()
 
         val meldedHeap = heap.merge(anotherHeap)
 
