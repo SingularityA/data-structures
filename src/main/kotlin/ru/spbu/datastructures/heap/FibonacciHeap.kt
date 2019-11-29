@@ -1,13 +1,16 @@
 package ru.spbu.datastructures.heap
 
-
 import kotlin.math.log2
+
+/**
+ * @author NEA33
+ */
 
 class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
 
     private var root: Node<V>? = null
     var keys: MutableSet<Int> = mutableSetOf<Int>()
-    var size: Int = 0
+    val size: Int
         get() = keys.size
 
     private class Node<V>(var key: Int, var value: V) {
@@ -40,7 +43,7 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
         val listNode: List<Node<V>>
             get() {
                 var node = this
-                var listNode: MutableList<Node<V>> = mutableListOf()
+                val listNode: MutableList<Node<V>> = mutableListOf()
                 while (true) {
                     listNode.add(node)
                     node = node.right
@@ -65,13 +68,52 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
             }
             return findNode
         }
+
+        fun neighbors(): MutableList<Node<V>> {
+            val listNode: MutableList<Node<V>> = mutableListOf()
+            var node = this
+            while(true) {
+                listNode.add(node)
+                if (node.right == this)
+                    break
+                node = node.right
+            }
+            return listNode
+        }
+
+        fun traversing(): MutableList<Node<V>> {
+            val listNeigh = this.neighbors()
+            var i = 0
+            var node: Node<V>
+            while (true) {
+                if (i > listNeigh.size-1) {
+                    return listNeigh
+                }
+                node = listNeigh[i]
+                if (node.child == null) {
+                    i += 1
+                    continue
+                }
+                else {
+                    i += 1
+                    node = node.child!!
+                    val traver = node.traversing()
+                    listNeigh.addAll(i, traver)
+                    i += traver.size
+                    if (node.parent != null) {
+                        listNeigh.add(i, node.parent!!)
+                        i += 1
+                    }
+                }
+            }
+        }
     }
 
     private val listRoots: List<Node<V>>?
         get() {
             if (this.isEmpty)
                 return null
-            var listRoots: MutableList<Node<V>> = mutableListOf()
+            val listRoots: MutableList<Node<V>> = mutableListOf()
             var node = this.root
             while (true) {
                 listRoots.add(node!!)
@@ -82,6 +124,17 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
             return listRoots
         }
 
+
+    fun print() {
+        if (this.isEmpty) {
+            println("Heap is empty")
+            return
+        }
+        val traversing = this.root!!.traversing()
+        traversing.forEach { i -> print("${i.value}|") }
+
+    }
+
     val peek: V?
         get() =
             when (this.isEmpty) {
@@ -89,12 +142,11 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
                 false -> this.root!!.value
             }
 
-
     val pop: V?
         get() {
             if (this.isEmpty)
                 return null
-            var result = this.peek
+            val result = this.peek
             this.keys.remove(this.root!!.key)
             if (this.root!!.child == null) {
                 if (this.root!!.right == this.root) {
@@ -112,7 +164,7 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
                 } else {
                     this.root!!.right.left = this.root!!.left
                     this.root!!.left.right = this.root!!.right
-                    var tmp = this.root
+                    val tmp = this.root
                     this.root = this.root!!.right
 
                     this.root!!.unionList(tmp!!.child!!)
@@ -128,10 +180,10 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
                 this.root = newRoot
             }
             return result
-    }
+        }
 
     fun push(key: Int, value: V) {
-        var list = Node(key, value)
+        val list = Node(key, value)
         if (key !in keys)
             this.keys.add(key)
         else {
@@ -171,7 +223,6 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
         this.keys.addAll(heap.keys)
         if (this.isEmpty) {
             this.root = heap.root
-            //this.size = heap.size
             heap.clear
             return this
         }
@@ -197,7 +248,7 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
 
     fun consolidate(N: Int) {
         val a: MutableList<Node<V>?> = mutableListOf()
-        var n = log2(N.toDouble()).toInt()
+        val n = log2(N.toDouble()).toInt()
         for (i in 0..n)
             a.add(null)
         var current: Node<V> = this.root!!
@@ -213,7 +264,7 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
                 continue
             } else {
                 if (comparator.compare(a[index]!!.key, current.key) < 0) {
-                    var tmp = current
+                    val tmp = current
                     current = a[index]!!
                     a[index] = tmp
 
@@ -295,7 +346,7 @@ class FibonacciHeap <V> (val comparator: Comparator<Int> = naturalOrder()) {
                 findNode.right = findNode
                 findNode.left = findNode
                 this.root!!.unionList(findNode)
-                var listChild = this.root!!.child!!.listNode
+                val listChild = this.root!!.child!!.listNode
 
                 var newDegree = 0
                 for (child in listChild) {
