@@ -31,12 +31,14 @@ abstract class BTree<K : Comparable<K>, V> {
     open fun delete(key: K): V? = TODO("Not implemented")
 }
 
-class ArrayListBTree<K : Comparable<K>, V> : BTree<K, V>() {
+class ArrayListBTree<K : Comparable<K>, V> : BTree<K, V> {
 
     override var root: ArrayListBNode<K, V>? = null
 
     private val median: Int
-        get() = minKeys
+        get() = degree - 1
+
+    constructor(degree: Int = 3): super(degree)
 
     override fun search(key: K): V? {
         if (isEmpty()) return null
@@ -88,14 +90,17 @@ class ArrayListBTree<K : Comparable<K>, V> : BTree<K, V>() {
 
         val first = ArrayListBNode(
             node.keys.subList(0, median),
-            node.values.subList(0, median),
-            node.children.subList(0, degree)
+            node.values.subList(0, median)
         )
         val second = ArrayListBNode(
             node.keys.subList(median + 1, maxKeys),
-            node.values.subList(median + 1, maxKeys),
-            node.children.subList(degree, 2 * degree)
+            node.values.subList(median + 1, maxKeys)
         )
+
+        if (node.isNotLeaf()) {
+            first.children.addAll(node.children.subList(0, degree))
+            second.children.addAll(node.children.subList(degree, 2 * degree))
+        }
 
         if (node.parent == null) {
             root = ArrayListBNode(
@@ -111,9 +116,9 @@ class ArrayListBTree<K : Comparable<K>, V> : BTree<K, V>() {
             second.parent = parent
             parent.children[index] = first
             parent.children.add(index + 1, second)
-        }
 
-        // по идее не обязательно
-        node.clear()
+            if (parent.size == maxKeys)
+                split(parent)
+        }
     }
 }

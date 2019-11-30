@@ -42,7 +42,7 @@ class ArrayListBNode<K : Comparable<K>, V> : BNode<K, V> {
 
     constructor(keys: Collection<K>,
                 values: Collection<V>,
-                children: Collection<BNode<K, V>>,
+                children: Collection<BNode<K, V>> = mutableListOf(),
                 parent: BNode<K, V>? = null): super() {
         this.keys = ArrayList(keys)
         this.values = ArrayList(values)
